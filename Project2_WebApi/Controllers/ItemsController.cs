@@ -4,31 +4,44 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Data.SqlClient;
 
 namespace Project2_WebApi.Controllers
 {
     public class ItemsController : ApiController
     {
-        public static List<Item> items = new List<Item> { new Item(1, "fruit", "apple", "", 2.22), new Item(2, "dairy", "milk", "zbregov", 4.99), new Item(3, "misc", "Chefs knife", "Samura", 199.99) };
+        public static List<Item> items;
 
         [HttpGet]
         [Route("api/Items/All")]
         public HttpResponseMessage GetAllItems()
         {
-            if (items != null)
+            using (SqlConnection connection = new SqlConnection("Data Source=(LocalDB)\\MSSQLLocalDB;Integrated Security=True"))
             {
-                return Request.CreateResponse<List<Item>>(HttpStatusCode.OK, items);
-            }
-            else
-            {
-                return Request.CreateErrorResponse(HttpStatusCode.NotFound, "List is empty!");
+                SqlCommand command = new SqlCommand("SELECT * FROM Item;", connection);
+                connection.Open();
+
+                SqlDataReader reader = command.ExecuteReader();
+
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        items.Add(new Item(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.GetString(3),reader.GetDouble(4)));
+                    }
+                    return Request.CreateResponse<List<Item>>(HttpStatusCode.OK, items);
+                }
+                else
+                {
+                    return Request.CreateErrorResponse(HttpStatusCode.NotFound, "List is empty!");
+                }
             }
         }
 
         [HttpGet]
         public HttpResponseMessage GetItem(int id)
         {
-            Item requestedItem = items.Find(item => item.id.Equals(id));
+            Item requestedItem = items.Find(item => item.Id.Equals(id));
             if (requestedItem != null)
             {
                 return Request.CreateResponse<Item>(HttpStatusCode.OK, requestedItem);
@@ -54,25 +67,25 @@ namespace Project2_WebApi.Controllers
         [HttpPut]
         public HttpResponseMessage UpdateItem(int id, Item updatedItem)
         {
-            Item requestedItem = items.FirstOrDefault(item => item.id == id);
+            Item requestedItem = items.FirstOrDefault(item => item.Id == id);
             if (requestedItem == null)
             {
                 return Request.CreateErrorResponse(HttpStatusCode.NotFound, "Item not found!");
             }
-            requestedItem.id = 0;
+            requestedItem.Id = 0;
             if (ItemExists(updatedItem))
             {
-                requestedItem.id = id;
+                requestedItem.Id = id;
                 return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Item with that Id already exists!");
             }
-            requestedItem.id = id;
+            requestedItem.Id = id;
             items[items.FindIndex(item => item == requestedItem)] = updatedItem;
             return Request.CreateResponse(HttpStatusCode.OK);
         }
 
         public HttpResponseMessage Delete(int id)
         {
-            if (!items.Remove(items.Find(item => item.id == id)))
+            if (!items.Remove(items.Find(item => item.Id == id)))
             {
                 return Request.CreateErrorResponse(HttpStatusCode.NotFound, "Item not found!");
             }
@@ -86,7 +99,7 @@ namespace Project2_WebApi.Controllers
             {
                 try
                 {
-                    if (item.id == newItem.id)
+                    if (item.Id == newItem.Id)
                     {
                         return true;
                     }
