@@ -5,30 +5,27 @@ using System.Web;
 
 namespace Project2_WebApi
 {
-    public class Item
+    public class CleanItem
     {
-        public Guid Id { get; set; }
         public string Category { get; set; }
         public string Name { get; set; }
-        public Guid CompanyId { get; set; }
+        public string CompanyName { get; set; }
         public decimal Price { get; set; }
 
-        public Item() { Id = Guid.NewGuid(); }
+        public CleanItem() {  }
 
-        public Item(string category, string name, decimal price)
+        public CleanItem(string category, string name, decimal price)
         {
-            Id = Guid.NewGuid();
             this.Category = category;
             this.Name = name;
             this.Price = price;
         }
 
-        public void SetItem(Guid id, string category, string name, Guid companyId, decimal price)
+        public void SetItem(string category, string name, string companyName, decimal price)
         {
-            this.Id = id;
             this.Category = category;
             this.Name = name;
-            this.CompanyId = companyId;
+            this.CompanyName = companyName;
             this.Price = price;
         }
     }

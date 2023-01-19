@@ -10,14 +10,14 @@ namespace Project2_WebApi.Controllers
 {
     public class ItemsController : ApiController
     {
-        public static List<Item> items;
 
         [HttpGet]
         [Route("api/Items/All")]
         public HttpResponseMessage GetAllItems()
         {
-            using (SqlConnection connection = new SqlConnection("Data Source=(LocalDB)\\MSSQLLocalDB;Integrated Security=True"))
+            using (SqlConnection connection = new SqlConnection("Data Source=DESKTOP-U9ANVTR;Initial Catalog=test;Integrated Security=True"))
             {
+                List<Item> items = new List<Item>();
                 SqlCommand command = new SqlCommand("SELECT * FROM Item;", connection);
                 connection.Open();
 
@@ -27,28 +27,111 @@ namespace Project2_WebApi.Controllers
                 {
                     while (reader.Read())
                     {
-                        items.Add(new Item(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.GetString(3),reader.GetDouble(4)));
+                        Item item = new Item(); 
+                        item.SetItem((Guid)reader[0], (string)reader[1], (string)reader[2], (Guid)reader[3],(decimal)reader[4]);
+                        items.Add(item);
                     }
+                    reader.Close();
                     return Request.CreateResponse<List<Item>>(HttpStatusCode.OK, items);
                 }
                 else
                 {
-                    return Request.CreateErrorResponse(HttpStatusCode.NotFound, "List is empty!");
+                    reader.Close();
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "List is empty!");
                 }
             }
         }
 
         [HttpGet]
-        public HttpResponseMessage GetItem(int id)
+        [Route("api/Items/All/Clean")]
+        public HttpResponseMessage GetAllItemsClean()
         {
-            Item requestedItem = items.Find(item => item.Id.Equals(id));
-            if (requestedItem != null)
+            using (SqlConnection connection = new SqlConnection("Data Source=DESKTOP-U9ANVTR;Initial Catalog=test;Integrated Security=True"))
             {
-                return Request.CreateResponse<Item>(HttpStatusCode.OK, requestedItem);
+                List<CleanItem> items = new List<CleanItem>();
+                SqlCommand command = new SqlCommand("SELECT Item.Category, Item.Name, Company.Name, Item.Price FROM Item, Company Where Item.CompanyId = Company.Id;", connection);
+                connection.Open();
+
+                SqlDataReader reader = command.ExecuteReader();
+
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        CleanItem item = new CleanItem();
+                        item.SetItem((string)reader[0], (string)reader[1],(string)reader[2], (decimal)reader[3]);
+                        items.Add(item);
+                    }
+                    reader.Close();
+                    return Request.CreateResponse<List<CleanItem>>(HttpStatusCode.OK, items);
+                }
+                else
+                {
+                    reader.Close();
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "List is empty!");
+                }
             }
-            else
+        }
+
+        [HttpGet]
+        [Route("api/Items/name")]
+        public HttpResponseMessage FindName([FromBody]string Name)
+        {
+            using (SqlConnection connection = new SqlConnection("Data Source=DESKTOP-U9ANVTR;Initial Catalog=test;Integrated Security=True"))
             {
-                return Request.CreateErrorResponse(HttpStatusCode.NotFound, "Item not found!");
+                List<Item> items = new List<Item>();
+                SqlCommand command = new SqlCommand($"SELECT * FROM Item Where Item.Name = '{Name}';", connection);
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+
+                        Item item = new Item();
+                        item.SetItem((Guid)reader[0], (string)reader[1], (string)reader[2], (Guid)reader[3], (decimal)reader[4]);
+                        items.Add(item);
+                    }
+                    reader.Close();
+                    return Request.CreateResponse<List<Item>>(HttpStatusCode.OK, items);
+                }
+                else
+                {
+                    reader.Close();
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "Item not found!");
+                }
+            }
+        }
+
+        [HttpGet]
+        [Route("api/Items")]
+        public HttpResponseMessage FindId( Guid id)
+        {
+            using (SqlConnection connection = new SqlConnection("Data Source=DESKTOP-U9ANVTR;Initial Catalog=test;Integrated Security=True"))
+            {
+                List<Item> items = new List<Item>();
+                SqlCommand command = new SqlCommand($"SELECT * FROM Item Where Item.Id = '{id}';", connection);
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+
+                        Item item = new Item();
+                        item.SetItem((Guid)reader[0], (string)reader[1], (string)reader[2], (Guid)reader[3], (decimal)reader[4]);
+                        items.Add(item);
+                    }
+                    reader.Close();
+                    return Request.CreateResponse<List<Item>>(HttpStatusCode.OK, items);
+                }
+                else
+                {
+                    reader.Close();
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "Item not found!");
+                }
             }
         }
 
@@ -56,60 +139,68 @@ namespace Project2_WebApi.Controllers
         [Route("api/Items")]
         public HttpResponseMessage AddNewItem(Item newItem)
         {
-            if (ItemExists(newItem)) 
+            using (SqlConnection connection = new SqlConnection("Data Source=DESKTOP-U9ANVTR;Initial Catalog=test;Integrated Security=True"))
             {
-                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Item with that Id already exists!");
+                Guid companyId;
+                SqlCommand GetCompany = new SqlCommand($"Select Id From Company where Id = '{newItem.CompanyId}';", connection);
+                connection.Open();
+                SqlDataReader reader = GetCompany.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    reader.Read();
+                    companyId = (Guid)reader[0];
+                }
+                else
+                {
+                    reader.Close();
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "Company not found!");
+                }
+                reader.Close();
+                SqlCommand command = new SqlCommand($"Insert Into Item Values('{newItem.Id}','{newItem.Category}','{newItem.Name}','{companyId}',{newItem.Price.ToString(System.Globalization.CultureInfo.InvariantCulture)});", connection);
+                command.ExecuteReader();
+                return Request.CreateResponse(HttpStatusCode.OK, "Item added");
             }
-            items.Add(newItem);
-            return Request.CreateResponse(HttpStatusCode.OK);
         }
 
         [HttpPut]
-        public HttpResponseMessage UpdateItem(int id, Item updatedItem)
+        [Route("api/Items/change")]
+        public HttpResponseMessage UpdateItem(Guid id, Item updatedItem)
         {
-            Item requestedItem = items.FirstOrDefault(item => item.Id == id);
-            if (requestedItem == null)
+            using (SqlConnection connection = new SqlConnection("Data Source=DESKTOP-U9ANVTR;Initial Catalog=test;Integrated Security=True"))
             {
-                return Request.CreateErrorResponse(HttpStatusCode.NotFound, "Item not found!");
+                SqlCommand GetItem = new SqlCommand($"Select * From Item where Id = '{id}';", connection);
+                connection.Open();
+                SqlDataReader reader = GetItem.ExecuteReader();
+                if (!reader.HasRows)
+                {
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "Item not found!");
+                }
+                reader.Close();
+                SqlCommand command = new SqlCommand($"Update Item set category = '{updatedItem.Category}', name = '{updatedItem.Name}', companyid = '{updatedItem.CompanyId}', price = {updatedItem.Price.ToString(System.Globalization.CultureInfo.InvariantCulture)} where id = '{id}';", connection);
+                command.ExecuteReader();
+                return Request.CreateResponse(HttpStatusCode.OK,"Item successfully changed");
             }
-            requestedItem.Id = 0;
-            if (ItemExists(updatedItem))
-            {
-                requestedItem.Id = id;
-                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Item with that Id already exists!");
-            }
-            requestedItem.Id = id;
-            items[items.FindIndex(item => item == requestedItem)] = updatedItem;
-            return Request.CreateResponse(HttpStatusCode.OK);
         }
 
-        public HttpResponseMessage Delete(int id)
+        [HttpDelete]
+        [Route("api/Items/delete")]
+        public HttpResponseMessage Delete(Guid id)
         {
-            if (!items.Remove(items.Find(item => item.Id == id)))
+            using (SqlConnection connection = new SqlConnection("Data Source=DESKTOP-U9ANVTR;Initial Catalog=test;Integrated Security=True"))
             {
-                return Request.CreateErrorResponse(HttpStatusCode.NotFound, "Item not found!");
-            }
-            return Request.CreateResponse(HttpStatusCode.OK);
-
-        }
-
-        public bool ItemExists(Item newItem)
-        {
-            foreach (Item item in items)
-            {
-                try
+                SqlCommand FindItem = new SqlCommand($"Select * From Item where Id = '{id}';", connection);
+                connection.Open();
+                SqlDataReader reader = FindItem.ExecuteReader();
+                if (reader.HasRows)
                 {
-                    if (item.Id == newItem.Id)
-                    {
-                        return true;
-                    }
+                    reader.Close();
+                    SqlCommand command = new SqlCommand($"Delete From Item where Id = '{id}';", connection);
+                    command.ExecuteReader();
+                    return Request.CreateResponse(HttpStatusCode.OK, "Item deleted");
                 }
-                catch (NullReferenceException)
-                {
-                    return true;
-                }
+                reader.Close();
+                return Request.CreateResponse(HttpStatusCode.NotFound, "Item not found!");
             }
-            return false;
         }
     }
 }

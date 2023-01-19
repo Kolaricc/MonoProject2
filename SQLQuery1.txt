@@ -1,77 +1,77 @@
 Create table Company(
-	Id int primary key,
+	Id UniqueIdentifier primary key default newId(),
 	Name varchar(50),
 	Email varchar(25)
 );
 
 Create table Adress(
-	Id int primary key foreign key references Company(id),
+	Id UniqueIdentifier primary key foreign key references Company(id) default newId(),
 	Street varchar(50),
 	Number int,
 	City varchar(20)
 	);
 	
 Create table Item(
-	Id int primary key,
+	Id UniqueIdentifier primary key default newId(),
 	Category varchar(20),
 	Name varchar(25),
-	CompanyId int foreign key references Company(Id)
+	CompanyId UniqueIdentifier foreign key references Company(Id),
+	Price decimal(10,2)
 );
 
 Create table Employee(
-	Id int primary key,
+	Id UniqueIdentifier primary key default newId(),
 	FirstName varchar(15),
 	LastName varchar(20)
 );
 
 Create table CompanyEmployee
 (
-	CompanyId int,
-	EmployeeId int,
+	EmployeeId UniqueIdentifier,
+	CompanyId UniqueIdentifier,
 
 	Primary key(CompanyId,EmployeeId),
 	Foreign key(CompanyId) References Company(id),
 	Foreign key(EmployeeId) References Employee(id)
 
 );
-
-Insert into Company values (1,'Company1','company1@mail.com')
-Insert into Company values (2,'Company2','second@mail.com')
-Insert into Company values (3,'Company3','comp3@mail.com')
-Insert into Company values (4,'Company4','forth@mail.com')
-Insert into Company values (5,'Company5','company5@mail.com')
-Insert into Company values (6,'Company6','six@mail.com')
+Insert into Company (Name, Email) values ('Company1','company1@mail.com')
+Insert into Company (Name, Email) values ('Company2','second@mail.com')
+Insert into Company (Name, Email) values ('Company3','comp3@mail.com')
+Insert into Company (Name, Email) values ('Company4','forth@mail.com')
+Insert into Company (Name, Email) values ('Company5','company5@mail.com')
+Insert into Company (Name, Email) values ('Company6','six@mail.com')
 
 Select * from Company
 
-Insert into Adress values (1,'Street st.',11,'Osijek')
-Insert into Adress values (2,'Lane st.',55,'Vukovar')
-Insert into Adress values (3,'Street ln.',4,'Zagreb')
-Insert into Adress values (4,'Lane ln.',10,'Osijek')
+Insert into Adress values ((Select Id from Company where name = 'Company1'),'Street st.',11,'Osijek')
+Insert into Adress values ((Select Id from Company where name = 'Company3'),'Lane st.',55,'Vukovar')
+Insert into Adress values ((Select Id from Company where name = 'Company5'),'Street ln.',4,'Zagreb')
+Insert into Adress values ((Select Id from Company where name = 'Company2'),'Lane ln.',10,'Osijek')
 
 Select * from Adress
 
-Insert into Item values (1,'Office supplys','Paper',2)
-Insert into Item values (2,'Office supplys','PaperClip',2)
-Insert into Item values (3,'Office supplys','Eraser',1)
-Insert into Item values (4,'Office supplys','Marker',4)
+Insert into Item values (NewId(),'Office supplys','Paper',(Select Id from Company where name = 'Company1'),0.45)
+Insert into Item values (NewId(),'Office supplys','PaperClip',(Select Id from Company where name = 'Company1'),0.99)
+Insert into Item values (NewId(),'Office supplys','Eraser',(Select Id from Company where name = 'Company4'),1.00)
+Insert into Item values (NewId(),'Office supplys','Marker',(Select Id from Company where name = 'Company2'),2.50)
 
 Select * from Item
 
-Insert into Employee values (1,'John','Doe')
-Insert into Employee values (2,'Jane','Doe')
-Insert into Employee values (3,'Jack','Jackson')
-Insert into Employee values (4,'Johhny','Daniels')
-Insert into Employee values (5,'Michael','Stevens')
+Insert into Employee values (newId(),'John','Doe')
+Insert into Employee values (newId(),'Jane','Doe')
+Insert into Employee values (newId(),'Jack','Jackson')
+Insert into Employee values (newId(),'Johhny','Daniels')
+Insert into Employee values (newId(),'Michael','Stevens')
 
 Select * from Employee
 
-Insert into CompanyEmployee values(1,1)
-Insert into CompanyEmployee values(1,4)
-Insert into CompanyEmployee values(5,1)
-Insert into CompanyEmployee values(4,3)
-Insert into CompanyEmployee values(5,3)
-Insert into CompanyEmployee values(4,2)
+Insert into CompanyEmployee values((Select Id from Employee where FirstName = 'John' and LastName = 'Doe'),(Select Id from Company where name = 'Company1'))
+Insert into CompanyEmployee values((Select Id from Employee where FirstName = 'John' and LastName = 'Doe'),(Select Id from Company where name = 'Company2'))
+Insert into CompanyEmployee values((Select Id from Employee where FirstName = 'Jane' and LastName = 'Doe'),(Select Id from Company where name = 'Company2'))
+Insert into CompanyEmployee values((Select Id from Employee where FirstName = 'Jack' and LastName = 'Jackson'),(Select Id from Company where name = 'Company5'))
+Insert into CompanyEmployee values((Select Id from Employee where FirstName = 'Jack' and LastName = 'Jackson'),(Select Id from Company where name = 'Company3'))
+Insert into CompanyEmployee values((Select Id from Employee where FirstName = 'Michael' and LastName = 'Stevens'),(Select Id from Company where name = 'Company4'))
 
 Select Company.Name, Adress.Street, Adress.Number, Adress.City
 From Adress
@@ -82,7 +82,7 @@ Select Company.Name, Employee.FirstName, Employee.LastName
 From Employee
 Inner join CompanyEmployee on Employee.Id=CompanyEmployee.EmployeeId
 Inner join Company on Company.id = CompanyEmployee.CompanyId
-Order by Company.Id
+Order by Employee.FirstName
 
 Select  Company.Name, Count(Item.Id) as 'NumberOfItems' 
 From Company

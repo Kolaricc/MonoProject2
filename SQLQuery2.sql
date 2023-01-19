@@ -1,1 +1,0 @@
-﻿Insert into Item values(1,'dairy','milk','dukat',4.99)
