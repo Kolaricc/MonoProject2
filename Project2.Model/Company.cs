@@ -1,11 +1,13 @@
-﻿using System;
+﻿using Project2.Model.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Project2_WebApi
+namespace Project2.Model
 {
-    public class Company
+    public class Company : ICompany
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
@@ -20,7 +22,7 @@ namespace Project2_WebApi
             this.Email = email;
         }
 
-        public void SetCompany(Guid id,string name, string email)
+        public void SetCompany(Guid id, string name, string email)
         {
             this.Id = id;
             this.Name = name;

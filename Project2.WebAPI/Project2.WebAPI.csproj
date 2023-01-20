@@ -7,16 +7,16 @@
     <ProductVersion>
     </ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{82292B4D-A544-4471-904B-5A89878CC6D2}</ProjectGuid>
+    <ProjectGuid>{A561C962-6ED6-4B0E-BEF7-DB5F21E0768C}</ProjectGuid>
     <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Project2_WebApi</RootNamespace>
-    <AssemblyName>Project2_WebApi</AssemblyName>
+    <RootNamespace>Project2.WebAPI</RootNamespace>
+    <AssemblyName>Project2.WebAPI</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <UseIISExpress>true</UseIISExpress>
     <Use64BitIISExpress />
-    <IISExpressSSLPort>44309</IISExpressSSLPort>
+    <IISExpressSSLPort>44359</IISExpressSSLPort>
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
@@ -85,14 +85,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="CleanItem.cs" />
-    <Compile Include="Company.cs" />
     <Compile Include="Controllers\CompanyController.cs" />
-    <Compile Include="Controllers\ItemsController.cs" />
+    <Compile Include="Controllers\ItemController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Item.cs" />
+    <Compile Include="Models\CleanItem.cs" />
+    <Compile Include="Models\CompanyRest.cs" />
+    <Compile Include="Models\ItemRest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -106,7 +106,23 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Models\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Project2.Model\Project2.Model.csproj">
+      <Project>{eec41e39-0c85-4fb4-8f1e-ffaf6b720cf2}</Project>
+      <Name>Project2.Model</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Project2.Service\Project2.Service.csproj">
+      <Project>{de7c4740-c470-4b03-a364-534fd12a35b3}</Project>
+      <Name>Project2.Service</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Project2.Solution.Common\Project2.Solution.Common.csproj">
+      <Project>{99b144b5-8aa0-4bf8-abe6-a03dc1ff1b7a}</Project>
+      <Name>Project2.Solution.Common</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
@@ -121,9 +137,9 @@
         <WebProjectProperties>
           <UseIIS>True</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>65159</DevelopmentServerPort>
+          <DevelopmentServerPort>55854</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>https://localhost:44309/</IISUrl>
+          <IISUrl>https://localhost:44359/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>
