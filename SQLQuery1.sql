@@ -51,10 +51,10 @@ Insert into Adress values ((Select Id from Company where name = 'Company2'),'Lan
 
 Select * from Adress
 
-Insert into Item values (NewId(),'Office supplys','Paper',(Select Id from Company where name = 'Company1'),0.45)
-Insert into Item values (NewId(),'Office supplys','PaperClip',(Select Id from Company where name = 'Company1'),0.99)
-Insert into Item values (NewId(),'Office supplys','Eraser',(Select Id from Company where name = 'Company4'),1.00)
-Insert into Item values (NewId(),'Office supplys','Marker',(Select Id from Company where name = 'Company2'),2.50)
+Insert into Item values (NewId(),'Office supplys','Paper',(Select Id from Company where name = 'Company1'),0.45,GetDate())
+Insert into Item values (NewId(),'Office supplys','PaperClip',(Select Id from Company where name = 'Company1'),0.99,GetDate())
+Insert into Item values (NewId(),'Office supplys','Eraser',(Select Id from Company where name = 'Company4'),1.00,GetDate())
+Insert into Item values (NewId(),'Office supplys','Marker',(Select Id from Company where name = 'Company2'),2.50,GetDate())
 
 Select * from Item
 
@@ -102,3 +102,8 @@ where CompanyEmployee.EmployeeId is null
 
 Update Item
 set CompanyId = 3 where id=3
+
+Use test
+Alter table Item
+Add AdditionTime DateTime;
+
