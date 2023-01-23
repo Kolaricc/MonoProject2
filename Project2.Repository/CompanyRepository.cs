@@ -11,9 +11,10 @@ namespace Project2.Repository
 {
     public class CompanyRepository:ICompanyRepository
     {
+        string connectionString = "Data Source=DESKTOP-U9ANVTR;Initial Catalog=test;Integrated Security=True";
         public List<Company> GetAllCompanies()
         {
-            using (SqlConnection connection = new SqlConnection("Data Source=DESKTOP-U9ANVTR;Initial Catalog=test;Integrated Security=True"))
+            using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 List<Company> companies = new List<Company>();
                 SqlCommand selectCompany = new SqlCommand("SELECT * FROM Company Order by name Asc;", connection);
@@ -37,7 +38,7 @@ namespace Project2.Repository
 
         public List<Company> FindByName(string name)
         {
-            using (SqlConnection connection = new SqlConnection("Data Source=DESKTOP-U9ANVTR;Initial Catalog=test;Integrated Security=True"))
+            using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 List<Company> companies = new List<Company>();
                 SqlCommand selectCompany = new SqlCommand($"SELECT * FROM Company Where Name = '{name}';", connection);
@@ -58,7 +59,7 @@ namespace Project2.Repository
 
         public Company FindById(Guid id)
         {
-            using (SqlConnection connection = new SqlConnection("Data Source=DESKTOP-U9ANVTR;Initial Catalog=test;Integrated Security=True"))
+            using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 Company company = new Company();
                 SqlCommand selectCompany = new SqlCommand($"SELECT * FROM Company Where Id = '{id}';", connection);
@@ -76,7 +77,7 @@ namespace Project2.Repository
         }
         public void AddNewCompany(Company company)
         {
-            using (SqlConnection connection = new SqlConnection("Data Source=DESKTOP-U9ANVTR;Initial Catalog=test;Integrated Security=True"))
+            using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
                 SqlCommand insertCompany = new SqlCommand($"Insert Into Company Values('{company.Id}','{company.Name}','{company.Email}');", connection);
@@ -86,7 +87,7 @@ namespace Project2.Repository
 
         public bool UpdateCompany(Guid id, Company company)
         {
-            using (SqlConnection connection = new SqlConnection("Data Source=DESKTOP-U9ANVTR;Initial Catalog=test;Integrated Security=True"))
+            using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 SqlCommand findCompany = new SqlCommand($"Select * From Company where Id = '{id}';", connection);
                 connection.Open();
@@ -104,7 +105,7 @@ namespace Project2.Repository
 
         public bool Delete(Guid id)
         {
-            using (SqlConnection connection = new SqlConnection("Data Source=DESKTOP-U9ANVTR;Initial Catalog=test;Integrated Security=True"))
+            using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 SqlCommand findCompany = new SqlCommand($"Select * From Company where Id = '{id}';", connection);
                 connection.Open();

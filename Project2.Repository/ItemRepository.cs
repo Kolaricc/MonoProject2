@@ -11,135 +11,163 @@ namespace Project2.Repository
 {
     public class ItemRepository : IItemRepository
     {
-        public List<Item> GetAllItems()
+        string connectionString = "Data Source=DESKTOP-U9ANVTR;Initial Catalog=test;Integrated Security=True";
+        public async Task<List<Item>> GetAllItemsAsync()
         {
-            using (SqlConnection connection = new SqlConnection("Data Source=DESKTOP-U9ANVTR;Initial Catalog=test;Integrated Security=True"))
+            using (SqlConnection connectionAsync = new SqlConnection(connectionString))
             {
                 List<Item> items = new List<Item>();
-                SqlCommand selectItems = new SqlCommand("SELECT * FROM Item;", connection);
-                connection.Open();
+                SqlCommand selectItems = new SqlCommand("SELECT * FROM Item;", connectionAsync);
+                await connectionAsync.OpenAsync();
 
-                SqlDataReader reader = selectItems.ExecuteReader();
+                SqlDataReader readerAsync = await selectItems.ExecuteReaderAsync();
 
-                if (reader.HasRows)
+                if (readerAsync.HasRows)
                 {
-                    while (reader.Read())
+                    while (await readerAsync.ReadAsync())
                     {
                         Item item = new Item();
-                        item.Set((Guid)reader[0], (string)reader[1], (string)reader[2], (Guid)reader[3], (decimal)reader[4]);
+                        item.Set((Guid)readerAsync[0], (string)readerAsync[1], (string)readerAsync[2], (Guid)readerAsync[3], (decimal)readerAsync[4], (DateTime)readerAsync[5]);
                         items.Add(item);
                     }
                 }
-                reader.Close();
+                readerAsync.Close();
                 return items;
             }
         }
 
-        public List<Item> FindByName(string name)
+        public async Task<List<Item>> FindByNameAsync(string name)
         {
-            using (SqlConnection connection = new SqlConnection("Data Source=DESKTOP-U9ANVTR;Initial Catalog=test;Integrated Security=True"))
+            using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 List<Item> items = new List<Item>();
-                SqlCommand selectItems = new SqlCommand($"SELECT * FROM Item Where Item.Name = '{name}';", connection);
-                connection.Open();
-                SqlDataReader reader = selectItems.ExecuteReader();
+                SqlCommand selectItems = new SqlCommand("SELECT * FROM Item Where Item.Name = @name;", connection);
+                await connection.OpenAsync();
+                selectItems.Parameters.AddWithValue("@name", name);
+                SqlDataReader readerAsync = await selectItems.ExecuteReaderAsync();
 
-                if (reader.HasRows)
+                if (readerAsync.HasRows)
                 {
-                    while (reader.Read())
+                    while (await readerAsync.ReadAsync())
                     {
 
                         Item item = new Item();
-                        item.Set((Guid)reader[0], (string)reader[1], (string)reader[2], (Guid)reader[3], (decimal)reader[4]);
+                        item.Set((Guid)readerAsync[0], (string)readerAsync[1], (string)readerAsync[2], (Guid)readerAsync[3], (decimal)readerAsync[4], (DateTime)readerAsync[5]);
                         items.Add(item);
                     }
                 }
-                reader.Close();
+                readerAsync.Close();
                 return items;
             }
         }
 
-        public Item FindById(Guid id)
+        public async Task<Item> FindByIdAsync(Guid id)
         {
-            using (SqlConnection connection = new SqlConnection("Data Source=DESKTOP-U9ANVTR;Initial Catalog=test;Integrated Security=True"))
+            using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 Item item = new Item();
-                SqlCommand selectItem = new SqlCommand($"SELECT * FROM Item Where Item.Id = '{id}';", connection);
-                connection.Open();
-                SqlDataReader reader = selectItem.ExecuteReader();
+                SqlCommand selectItem = new SqlCommand("SELECT * FROM Item Where Item.Id = @id;", connection);
+                await connection.OpenAsync();
+                selectItem.Parameters.AddWithValue("@id", id);
+                SqlDataReader readerAsync = await selectItem.ExecuteReaderAsync();
 
-                if (reader.HasRows)
+                if (readerAsync.HasRows)
                 {
-                    reader.Read();
-                    item.Set((Guid)reader[0], (string)reader[1], (string)reader[2], (Guid)reader[3], (decimal)reader[4]);
+                    await readerAsync.ReadAsync();
+                    item.Set((Guid)readerAsync[0], (string)readerAsync[1], (string)readerAsync[2], (Guid)readerAsync[3], (decimal)readerAsync[4], (DateTime)readerAsync[5]);
                 }
-                reader.Close();
+                readerAsync.Close();
                 return item;
             }
         }
 
-        public bool AddNewItem(Item item)
+        public async Task<string> AddNewItemAsync(Item item)
         {
-            using (SqlConnection connection = new SqlConnection("Data Source=DESKTOP-U9ANVTR;Initial Catalog=test;Integrated Security=True"))
+            using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 Guid companyId;
-                SqlCommand getCompany = new SqlCommand($"Select Id From Company where Id = '{item.CompanyId}';", connection);
-                connection.Open();
-                SqlDataReader reader = getCompany.ExecuteReader();
-                if (reader.HasRows)
+                SqlCommand getCompany = new SqlCommand("Select Id From Company where Id = @CompanyId;", connection);
+                await connection.OpenAsync();
+                getCompany.Parameters.AddWithValue("@CompanyId", item.CompanyId);
+                SqlDataReader readerAsync = getCompany.ExecuteReader();
+                if (readerAsync.HasRows)
                 {
-                    reader.Read();
-                    companyId = (Guid)reader[0];
+                    await readerAsync.ReadAsync();
+                    companyId = (Guid)readerAsync[0];
                 }
                 else
                 {
-                    reader.Close();
-                    return false;
+                    readerAsync.Close();
+                    return "Company not found!";
                 }
-                reader.Close();
-                SqlCommand insertItem = new SqlCommand($"Insert Into Item Values('{item.Id}','{item.Category}','{item.Name}','{companyId}',{item.Price.ToString(System.Globalization.CultureInfo.InvariantCulture)});", connection);
-                insertItem.ExecuteReader();
-                return true;
+                readerAsync.Close();
+                if (item.Category == null || item.Name == null || item.Price == 0) 
+                {
+                    return "Some parameters missing!";
+                }
+                SqlCommand insertItem = new SqlCommand("Insert Into Item Values(@Id,@Category,@Name,@CompanyId,@Price,@AdditionTime);", connection);
+                insertItem.Parameters.AddWithValue("@Id", item.Id);
+                insertItem.Parameters.AddWithValue("@Category", item.Category);
+                insertItem.Parameters.AddWithValue("@Name", item.Name);
+                insertItem.Parameters.AddWithValue("@CompanyId", item.CompanyId);
+                insertItem.Parameters.AddWithValue("@Price", item.Price.ToString(System.Globalization.CultureInfo.InvariantCulture));
+                insertItem.Parameters.AddWithValue("@AdditionTime", item.AdditionTime);
+                await insertItem.ExecuteNonQueryAsync();
+                return "Item added";
             }
         }
 
-        public string UpdateItem(Guid id, Item item)
+        public async Task<string> UpdateItemAsync(Guid id, Item item)
         {
-            using (SqlConnection connection = new SqlConnection("Data Source=DESKTOP-U9ANVTR;Initial Catalog=test;Integrated Security=True"))
+            using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                SqlCommand getItem = new SqlCommand($"Select * From Item where Id = '{id}';", connection);
-                connection.Open();
-                SqlDataReader reader = getItem.ExecuteReader();
-                if (!reader.HasRows)
+                SqlCommand getItem = new SqlCommand("Select * From Item where Id = @id;", connection);
+                getItem.Parameters.AddWithValue("@id", id);
+                await connection.OpenAsync();
+                SqlDataReader readerAsync = await getItem.ExecuteReaderAsync();
+                if (!readerAsync.HasRows)
                 {
+                    readerAsync.Close();
                     return "Item not found!";
                 }
-                reader.Close();
-                SqlCommand getCompany = new SqlCommand($"Select * From Company where Id = '{item.CompanyId}';", connection);
-                reader = getCompany.ExecuteReader();
-                if (!reader.HasRows)
+                readerAsync.Read();
+                DateTime additionTime = (DateTime)readerAsync[5];
+                readerAsync.Close();
+                SqlCommand getCompany = new SqlCommand("Select * From Company where Id = @id;", connection);
+                getCompany.Parameters.AddWithValue("@id", item.CompanyId);
+                readerAsync = await getCompany.ExecuteReaderAsync();
+                if (!readerAsync.HasRows)
                 {
+                    readerAsync.Close();
                     return "Company not found!";
                 }
-                reader.Close();
-                SqlCommand command = new SqlCommand($"Update Item set category = '{item.Category}', name = '{item.Name}', companyid = '{item.CompanyId}', price = {item.Price.ToString(System.Globalization.CultureInfo.InvariantCulture)} where id = '{id}';", connection);
-                command.ExecuteReader();
+                readerAsync.Close();
+                SqlCommand command = new SqlCommand("Update Item set category = @Category, name = @Name, companyid = @CompanyId, price = @Price, AdditionTime = @AdditionTime where id = @id;", connection);
+                command.Parameters.AddWithValue("@Category", item.Category);
+                command.Parameters.AddWithValue("@Name", item.Name);
+                command.Parameters.AddWithValue("@CompanyId", item.CompanyId);
+                command.Parameters.AddWithValue("@Price", item.Price.ToString(System.Globalization.CultureInfo.InvariantCulture));
+                command.Parameters.AddWithValue("@AdditionTime", additionTime);
+                command.Parameters.AddWithValue("@id", id);
+                await command.ExecuteNonQueryAsync();
                 return "Item successfully changed";
             }
         }
 
-        public bool Delete(Guid id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
-            using (SqlConnection connection = new SqlConnection("Data Source=DESKTOP-U9ANVTR;Initial Catalog=test;Integrated Security=True"))
+            using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                SqlCommand findItem = new SqlCommand($"Select * From Item where Id = '{id}';", connection);
-                connection.Open();
-                SqlDataReader reader = findItem.ExecuteReader();
+                SqlCommand findItem = new SqlCommand("Select * From Item where Id = @id;", connection);
+                findItem.Parameters.AddWithValue("@id", id);
+                await connection.OpenAsync();
+                SqlDataReader reader = await findItem.ExecuteReaderAsync();
                 if (reader.HasRows)
                 {
                     reader.Close();
-                    SqlCommand command = new SqlCommand($"Delete From Item where Id = '{id}';", connection);
-                    command.ExecuteReader();
+                    SqlCommand deleteItem = new SqlCommand("Delete From Item where Id = @id;", connection);
+                    deleteItem.Parameters.AddWithValue("@id", id);
+                    await deleteItem.ExecuteNonQueryAsync();
                     return true;
                 }
                 reader.Close();

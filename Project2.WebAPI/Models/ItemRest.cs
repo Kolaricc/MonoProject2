@@ -13,8 +13,9 @@ namespace Project2.WebAPI.Models
         public string Name { get; set; }
         public Guid CompanyId { get; set; }
         public decimal Price { get; set; }
+        public DateTime AdditionTime { get; set; }
 
-        public ItemRest() { Id = Guid.NewGuid(); }
+        public ItemRest() { Id = Guid.NewGuid(); AdditionTime = DateTime.Now; }
 
         public ItemRest(Item item)
         {
@@ -23,6 +24,7 @@ namespace Project2.WebAPI.Models
             this.Name = item.Name;
             this.CompanyId = item.CompanyId;
             this.Price = item.Price;
+            this.AdditionTime = item.AdditionTime;
         }
     }
 }

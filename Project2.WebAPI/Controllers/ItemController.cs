@@ -8,6 +8,7 @@ using System.Data.SqlClient;
 using Project2.Service;
 using Project2.Model;
 using Project2.WebAPI.Models;
+using System.Threading.Tasks;
 
 namespace Project2.WebApi.Controllers
 {
@@ -18,9 +19,9 @@ namespace Project2.WebApi.Controllers
 
         [HttpGet]
         [Route("api/Items/All")]
-        public HttpResponseMessage GetAllItems()
+        public async Task<HttpResponseMessage> GetAllItemsAsync()
         {
-            List<Item> items = itemService.GetAllItems();
+            List<Item> items = await itemService.GetAllItemsAsync();
             List<ItemRest> restItems = new List<ItemRest>();
             foreach(Item item in items)
             {
@@ -35,9 +36,9 @@ namespace Project2.WebApi.Controllers
 
         [HttpGet]
         [Route("api/Items/All/Clean")]
-        public HttpResponseMessage GetAllItemsClean()
+        public async Task<HttpResponseMessage> GetAllItemsCleanAsync()
         {
-            List<Item> items = itemService.GetAllItems();
+            List<Item> items = await itemService.GetAllItemsAsync();
             List<Company> companies = companyService.GetAllCompanies();
             List<CleanItem> cleanItems = new List<CleanItem>();
             foreach(Item item in items)
@@ -60,9 +61,9 @@ namespace Project2.WebApi.Controllers
 
         [HttpGet]
         [Route("api/Items/name")]
-        public HttpResponseMessage FindByName([FromBody] string name)
+        public async Task<HttpResponseMessage> FindByNameAsync([FromBody] string name)
         {
-            List<Item> items = itemService.FindByName(name);
+            List<Item> items =await itemService.FindByNameAsync(name);
             List<ItemRest> restItems = new List<ItemRest>();
             foreach(Item item in items)
             {
@@ -77,9 +78,9 @@ namespace Project2.WebApi.Controllers
 
         [HttpGet]
         [Route("api/Items")]
-        public HttpResponseMessage FindById(Guid id)
+        public async Task<HttpResponseMessage> FindByIdAsync(Guid id)
         {
-            Item item = itemService.FindById(id);
+            Item item = await itemService.FindByIdAsync(id);
             ItemRest restItem = new ItemRest(item);
             if (restItem is null)
             {
@@ -90,20 +91,21 @@ namespace Project2.WebApi.Controllers
 
         [HttpPost]
         [Route("api/Items")]
-        public HttpResponseMessage AddNewItem(ItemRest restItem)
+        public async Task<HttpResponseMessage> AddNewItemAsync(ItemRest restItem)
         {
             Item item = new Item();
-            item.Set(restItem.Id, restItem.Category, restItem.Name, restItem.CompanyId, restItem.Price);
-            if (itemService.AddNewItem(item))
+            item.Set(restItem.Category, restItem.Name, restItem.CompanyId, restItem.Price);
+            string responseMessage = await itemService.AddNewItemAsync(item);
+            if (responseMessage == "Item added")
             {
-                return Request.CreateResponse(HttpStatusCode.OK, "Item added");
+                return Request.CreateResponse(HttpStatusCode.OK, responseMessage);
             }
-            return Request.CreateResponse(HttpStatusCode.NotFound, "Company not found!");
+            return Request.CreateResponse(HttpStatusCode.BadRequest, responseMessage);
         }
 
         [HttpPost]
         [Route("api/Items/clean")]
-        public HttpResponseMessage AddCleanItem(CleanItem cleanItem)
+        public async Task<HttpResponseMessage> AddCleanItemAsync(CleanItem cleanItem)
         {
             Item item = new Item();
             Guid companyId = Guid.Empty;
@@ -120,20 +122,21 @@ namespace Project2.WebApi.Controllers
                 return Request.CreateResponse(HttpStatusCode.NotFound, "Company not found!");
             }
             item.Set(cleanItem.Category, cleanItem.Name, companyId, cleanItem.Price);
-            if (itemService.AddNewItem(item))
+            string responseMessage = await itemService.AddNewItemAsync(item);
+            if (responseMessage == "Item added")
             {
-                return Request.CreateResponse(HttpStatusCode.OK, "Item added");
+                return Request.CreateResponse(HttpStatusCode.OK, responseMessage);
             }
             return Request.CreateResponse(HttpStatusCode.BadRequest, "Error while adding!");
         }
 
         [HttpPut]
-        [Route("api/Items/change")]
-        public HttpResponseMessage UpdateItem(Guid id, ItemRest restItem)
+        [Route("api/Items")]
+        public async Task<HttpResponseMessage> UpdateItemAsync(Guid id, ItemRest restItem)
         {
             Item item = new Item();
-            item.Set(restItem.Id, restItem.Category, restItem.Name, restItem.CompanyId, restItem.Price);
-            string updateResponce = itemService.UpdateItem(id, item);
+            item.Set(restItem.Category, restItem.Name, restItem.CompanyId, restItem.Price);
+            string updateResponce = await itemService.UpdateItemAsync(id, item);
             if (updateResponce == "Item not found!" || updateResponce == "Company not found!")
             {
                 return Request.CreateResponse(HttpStatusCode.NotFound, updateResponce);
@@ -143,7 +146,7 @@ namespace Project2.WebApi.Controllers
 
         [HttpPut]
         [Route("api/Items/clean")]
-        public HttpResponseMessage UpdateCleanItem(Guid id, CleanItem cleanItem)
+        public async Task<HttpResponseMessage> UpdateCleanItem(Guid id, CleanItem cleanItem)
         {
             Item item = new Item();
             Guid companyId = Guid.Empty;
@@ -155,8 +158,8 @@ namespace Project2.WebApi.Controllers
                     companyId = company.Id;
                 }
             }
-            item.Set(id, cleanItem.Category, cleanItem.Name, companyId, cleanItem.Price);
-            string updateResponce = itemService.UpdateItem(id, item);
+            item.Set(cleanItem.Category, cleanItem.Name, companyId, cleanItem.Price);
+            string updateResponce = await itemService.UpdateItemAsync(id, item);
             if (updateResponce == "Item not found!" || updateResponce == "Company not found!")
             {
                 return Request.CreateResponse(HttpStatusCode.NotFound, updateResponce);
@@ -165,10 +168,10 @@ namespace Project2.WebApi.Controllers
         }
 
         [HttpDelete]
-        [Route("api/Items/delete")]
-        public HttpResponseMessage Delete(Guid id)
+        [Route("api/Items")]
+        public async Task<HttpResponseMessage> Delete(Guid id)
         {
-            if (itemService.Delete(id))
+            if (await itemService.DeleteAsync(id))
             {
                 return Request.CreateResponse(HttpStatusCode.OK, "Item deleted");
             }

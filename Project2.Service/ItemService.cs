@@ -11,34 +11,34 @@ namespace Project2.Service
     public class ItemService:IItemService
     {
         ItemRepository repository = new ItemRepository();
-        public List<Item> GetAllItems()
+        public async Task<List<Item>> GetAllItemsAsync()
         {
-            return repository.GetAllItems();
+            return await repository.GetAllItemsAsync();
         }
 
-        public List<Item> FindByName(string name)
+        public async Task<List<Item>> FindByNameAsync(string name)
         {
-            return repository.FindByName(name);
+            return await repository.FindByNameAsync(name);
         }
 
-        public Item FindById(Guid id)
+        public async Task<Item> FindByIdAsync(Guid id)
         {
-            return repository.FindById(id);
+            return await repository.FindByIdAsync(id);
         }
 
-        public bool AddNewItem(Item item)
+        public async Task<string> AddNewItemAsync(Item item)
         {
-            return repository.AddNewItem(item);
+            return await repository.AddNewItemAsync(item);
         }
 
-        public string UpdateItem(Guid id, Item item)
+        public async Task<string> UpdateItemAsync(Guid id, Item item)
         {
-            return repository.UpdateItem(id, item);
+            return await repository.UpdateItemAsync(id, item);
         }
 
-        public bool Delete(Guid id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
-            return repository.Delete(id);
+            return await repository.DeleteAsync(id);
         }
     }
 }

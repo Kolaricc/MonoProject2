@@ -9,14 +9,14 @@ namespace Project2.Repository.Common
 {
     public interface IItemRepository
     {
-        List<Item> GetAllItems();
+        Task<List<Item>> GetAllItemsAsync();
 
-        Item FindById(Guid id);
+        Task<Item> FindByIdAsync(Guid id);
 
-        bool AddNewItem(Item item);
+        Task<string> AddNewItemAsync(Item item);
 
-        string UpdateItem(Guid id, Item item);
+        Task<string> UpdateItemAsync(Guid id, Item item);
 
-        bool Delete(Guid id);
+        Task<bool> DeleteAsync(Guid id);
     }
 }
