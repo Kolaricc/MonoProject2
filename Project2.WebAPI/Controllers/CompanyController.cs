@@ -1,4 +1,4 @@
-﻿using System;
+﻿ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -7,18 +7,24 @@ using System.Web.Http;
 using Project2.Service;
 using Project2.Model;
 using Project2.WebAPI.Models;
+using Project2.Service.Common;
 
 namespace Project2.WebApi.Controllers
 {
     public class CompanyController : ApiController
     {
-        CompanyService service = new CompanyService();
+        ICompanyService companyService;
+
+        public CompanyController(ICompanyService companyService)
+        {
+            this.companyService = companyService;
+        }
 
         [HttpGet]
         [Route("api/Company/All")]
         public HttpResponseMessage GetAllItems()
         {
-            List<Company> companies = service.GetAllCompanies();
+            List<Company> companies = companyService.GetAllCompanies();
             List<CompanyRest> restCompanies = new List<CompanyRest>();
             foreach(Company company in companies)
             {
@@ -38,7 +44,7 @@ namespace Project2.WebApi.Controllers
         [Route("api/Company/name")]
         public HttpResponseMessage FindName([FromBody] string name)
         {
-            List<Company> companies = service.FindByName(name);
+            List<Company> companies = companyService.FindByName(name);
             List<CompanyRest> restCompanies = new List<CompanyRest>();
             foreach (Company company in companies)
             {
@@ -58,7 +64,7 @@ namespace Project2.WebApi.Controllers
         [Route("api/Company")]
         public HttpResponseMessage FindById(Guid id)
         {
-            Company company = service.FindById(id);
+            Company company = companyService.FindById(id);
             CompanyRest restCompany = new CompanyRest(company);
             if (restCompany is null)
             {
@@ -75,7 +81,7 @@ namespace Project2.WebApi.Controllers
         public HttpResponseMessage AddNewCompany(CompanyRest restCompany)
         {
             Company company = new Company(restCompany.Name, restCompany.Email);
-            service.AddNewCompany(company);
+            companyService.AddNewCompany(company);
             return Request.CreateResponse(HttpStatusCode.OK, "Company added");
         }
 
@@ -84,7 +90,7 @@ namespace Project2.WebApi.Controllers
         public HttpResponseMessage UpdateCompany(Guid id, CompanyRest restCompany)
         {
             Company company = new Company(restCompany.Name, restCompany.Email);
-            if (service.UpdateCompany(id,company))
+            if (companyService.UpdateCompany(id,company))
             {
                 return Request.CreateResponse(HttpStatusCode.OK, "Company successfully changed");
             }
@@ -95,7 +101,7 @@ namespace Project2.WebApi.Controllers
         [Route("api/Company/delete")]
         public HttpResponseMessage Delete(Guid id)
         {
-            if (service.Delete(id))
+            if (companyService.Delete(id))
             {
                 return Request.CreateResponse(HttpStatusCode.OK, "Item deleted");
             }

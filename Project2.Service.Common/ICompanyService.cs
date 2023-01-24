@@ -14,6 +14,8 @@ namespace Project2.Service.Common
 
         Company FindById(Guid id);
 
+        List<Company> FindByName(string name);
+
         void AddNewCompany(Company company);
 
         bool UpdateCompany(Guid id, Company company);

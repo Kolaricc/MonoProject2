@@ -6,41 +6,47 @@ using System.Threading.Tasks;
 using Project2.Repository;
 using Project2.Model;
 using Project2.Service.Common;
+using Project2.Repository.Common;
 
 namespace Project2.Service
 {
     public class CompanyService : ICompanyService
     {
-        CompanyRepository repository = new CompanyRepository();
+        ICompanyRepository companyRepository;
+
+        public CompanyService(ICompanyRepository companyRepository)
+        {
+            this.companyRepository = companyRepository;
+        }
 
         public List<Company> GetAllCompanies()
         {
-            return repository.GetAllCompanies();
+            return companyRepository.GetAllCompanies();
         }
 
         public List<Company> FindByName(string name)
         {
-            return repository.FindByName(name);
+            return companyRepository.FindByName(name);
         }
 
         public Company FindById(Guid id)
         {
-            return repository.FindById(id);
+            return companyRepository.FindById(id);
         }
 
         public void AddNewCompany(Company company)
         {
-            repository.AddNewCompany(company);
+            companyRepository.AddNewCompany(company);
         }
 
         public bool UpdateCompany(Guid id, Company company)
         {
-            return repository.UpdateCompany(id, company);
+            return companyRepository.UpdateCompany(id, company);
         }
 
         public bool Delete(Guid id)
         {
-            return repository.Delete(id);
+            return companyRepository.Delete(id);
         }
     }
 }

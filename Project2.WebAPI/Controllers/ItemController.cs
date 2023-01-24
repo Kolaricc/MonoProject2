@@ -9,19 +9,26 @@ using Project2.Service;
 using Project2.Model;
 using Project2.WebAPI.Models;
 using System.Threading.Tasks;
+using Project2.Service.Common;
 
 namespace Project2.WebApi.Controllers
 {
     public class ItemsController : ApiController
     {
-        ItemService itemService = new ItemService();
-        CompanyService companyService = new CompanyService();
+        private IItemService ItemService { get; set; }
+        private ICompanyService CompanyService { get; set; }
+
+        public ItemsController(IItemService itemService, ICompanyService companyService)
+        {
+            this.ItemService = itemService;
+            this.CompanyService = companyService;
+        }
 
         [HttpGet]
         [Route("api/Items/All")]
         public async Task<HttpResponseMessage> GetAllItemsAsync()
         {
-            List<Item> items = await itemService.GetAllItemsAsync();
+            List<Item> items = await ItemService.GetAllItemsAsync();
             List<ItemRest> restItems = new List<ItemRest>();
             foreach(Item item in items)
             {
@@ -38,8 +45,8 @@ namespace Project2.WebApi.Controllers
         [Route("api/Items/All/Clean")]
         public async Task<HttpResponseMessage> GetAllItemsCleanAsync()
         {
-            List<Item> items = await itemService.GetAllItemsAsync();
-            List<Company> companies = companyService.GetAllCompanies();
+            List<Item> items = await ItemService.GetAllItemsAsync();
+            List<Company> companies = CompanyService.GetAllCompanies();
             List<CleanItem> cleanItems = new List<CleanItem>();
             foreach(Item item in items)
             {
@@ -63,7 +70,7 @@ namespace Project2.WebApi.Controllers
         [Route("api/Items/name")]
         public async Task<HttpResponseMessage> FindByNameAsync([FromBody] string name)
         {
-            List<Item> items =await itemService.FindByNameAsync(name);
+            List<Item> items =await ItemService.FindByNameAsync(name);
             List<ItemRest> restItems = new List<ItemRest>();
             foreach(Item item in items)
             {
@@ -80,7 +87,7 @@ namespace Project2.WebApi.Controllers
         [Route("api/Items")]
         public async Task<HttpResponseMessage> FindByIdAsync(Guid id)
         {
-            Item item = await itemService.FindByIdAsync(id);
+            Item item = await ItemService.FindByIdAsync(id);
             ItemRest restItem = new ItemRest(item);
             if (restItem is null)
             {
@@ -95,7 +102,7 @@ namespace Project2.WebApi.Controllers
         {
             Item item = new Item();
             item.Set(restItem.Category, restItem.Name, restItem.CompanyId, restItem.Price);
-            string responseMessage = await itemService.AddNewItemAsync(item);
+            string responseMessage = await ItemService.AddNewItemAsync(item);
             if (responseMessage == "Item added")
             {
                 return Request.CreateResponse(HttpStatusCode.OK, responseMessage);
@@ -109,7 +116,7 @@ namespace Project2.WebApi.Controllers
         {
             Item item = new Item();
             Guid companyId = Guid.Empty;
-            List<Company> companies = companyService.GetAllCompanies();
+            List<Company> companies = CompanyService.GetAllCompanies();
             foreach (Company company in companies)
             {
                 if(company.Name==cleanItem.CompanyName)
@@ -122,7 +129,7 @@ namespace Project2.WebApi.Controllers
                 return Request.CreateResponse(HttpStatusCode.NotFound, "Company not found!");
             }
             item.Set(cleanItem.Category, cleanItem.Name, companyId, cleanItem.Price);
-            string responseMessage = await itemService.AddNewItemAsync(item);
+            string responseMessage = await ItemService.AddNewItemAsync(item);
             if (responseMessage == "Item added")
             {
                 return Request.CreateResponse(HttpStatusCode.OK, responseMessage);
@@ -136,7 +143,7 @@ namespace Project2.WebApi.Controllers
         {
             Item item = new Item();
             item.Set(restItem.Category, restItem.Name, restItem.CompanyId, restItem.Price);
-            string updateResponce = await itemService.UpdateItemAsync(id, item);
+            string updateResponce = await ItemService.UpdateItemAsync(id, item);
             if (updateResponce == "Item not found!" || updateResponce == "Company not found!")
             {
                 return Request.CreateResponse(HttpStatusCode.NotFound, updateResponce);
@@ -150,7 +157,7 @@ namespace Project2.WebApi.Controllers
         {
             Item item = new Item();
             Guid companyId = Guid.Empty;
-            List<Company> companies = companyService.GetAllCompanies();
+            List<Company> companies = CompanyService.GetAllCompanies();
             foreach (Company company in companies)
             {
                 if (company.Name == cleanItem.CompanyName)
@@ -159,7 +166,7 @@ namespace Project2.WebApi.Controllers
                 }
             }
             item.Set(cleanItem.Category, cleanItem.Name, companyId, cleanItem.Price);
-            string updateResponce = await itemService.UpdateItemAsync(id, item);
+            string updateResponce = await ItemService.UpdateItemAsync(id, item);
             if (updateResponce == "Item not found!" || updateResponce == "Company not found!")
             {
                 return Request.CreateResponse(HttpStatusCode.NotFound, updateResponce);
@@ -171,7 +178,7 @@ namespace Project2.WebApi.Controllers
         [Route("api/Items")]
         public async Task<HttpResponseMessage> Delete(Guid id)
         {
-            if (await itemService.DeleteAsync(id))
+            if (await ItemService.DeleteAsync(id))
             {
                 return Request.CreateResponse(HttpStatusCode.OK, "Item deleted");
             }

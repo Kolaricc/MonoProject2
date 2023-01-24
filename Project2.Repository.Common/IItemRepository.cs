@@ -13,6 +13,8 @@ namespace Project2.Repository.Common
 
         Task<Item> FindByIdAsync(Guid id);
 
+        Task<List<Item>> FindByNameAsync(string name);
+
         Task<string> AddNewItemAsync(Item item);
 
         Task<string> UpdateItemAsync(Guid id, Item item);
