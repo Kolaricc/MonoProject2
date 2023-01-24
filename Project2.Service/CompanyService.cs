@@ -19,34 +19,34 @@ namespace Project2.Service
             this.companyRepository = companyRepository;
         }
 
-        public List<Company> GetAllCompanies()
+        public async Task<List<Company>> GetAllCompaniesAsync()
         {
-            return companyRepository.GetAllCompanies();
+            return await companyRepository.GetAllCompaniesAsync();
         }
 
-        public List<Company> FindByName(string name)
+        public async Task<List<Company>> FindByNameAsync(string name)
         {
-            return companyRepository.FindByName(name);
+            return await companyRepository.FindByNameAsync(name);
         }
 
-        public Company FindById(Guid id)
+        public async Task<Company> FindByIdAsync(Guid id)
         {
-            return companyRepository.FindById(id);
+            return await companyRepository.FindByIdAsync(id);
         }
 
-        public void AddNewCompany(Company company)
+        public async Task AddNewCompanyAsync(Company company)
         {
-            companyRepository.AddNewCompany(company);
+            await companyRepository.AddNewCompanyAsync(company);
         }
 
-        public bool UpdateCompany(Guid id, Company company)
+        public async Task<bool> UpdateCompanyAsync(Guid id, Company company)
         {
-            return companyRepository.UpdateCompany(id, company);
+            return await companyRepository.UpdateCompanyAsync(id, company);
         }
 
-        public bool Delete(Guid id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
-            return companyRepository.Delete(id);
+            return await companyRepository.DeleteAsync(id);
         }
     }
 }

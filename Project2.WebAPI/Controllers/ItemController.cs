@@ -46,7 +46,7 @@ namespace Project2.WebApi.Controllers
         public async Task<HttpResponseMessage> GetAllItemsCleanAsync()
         {
             List<Item> items = await ItemService.GetAllItemsAsync();
-            List<Company> companies = CompanyService.GetAllCompanies();
+            List<Company> companies = await CompanyService.GetAllCompaniesAsync();
             List<CleanItem> cleanItems = new List<CleanItem>();
             foreach(Item item in items)
             {
@@ -116,7 +116,7 @@ namespace Project2.WebApi.Controllers
         {
             Item item = new Item();
             Guid companyId = Guid.Empty;
-            List<Company> companies = CompanyService.GetAllCompanies();
+            List<Company> companies = await CompanyService.GetAllCompaniesAsync();
             foreach (Company company in companies)
             {
                 if(company.Name==cleanItem.CompanyName)
@@ -157,7 +157,7 @@ namespace Project2.WebApi.Controllers
         {
             Item item = new Item();
             Guid companyId = Guid.Empty;
-            List<Company> companies = CompanyService.GetAllCompanies();
+            List<Company> companies = await CompanyService.GetAllCompaniesAsync();
             foreach (Company company in companies)
             {
                 if (company.Name == cleanItem.CompanyName)

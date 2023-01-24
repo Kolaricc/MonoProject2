@@ -9,16 +9,16 @@ namespace Project2.Repository.Common
 {
     public interface ICompanyRepository
     {
-        List<Company> GetAllCompanies();
+        Task<List<Company>> GetAllCompaniesAsync();
 
-        Company FindById(Guid id);
+        Task<Company> FindByIdAsync(Guid id);
 
-        List<Company> FindByName(string name);
+        Task<List<Company>> FindByNameAsync(string name);
 
-        void AddNewCompany(Company company);
+        Task AddNewCompanyAsync(Company company);
 
-        bool UpdateCompany(Guid id, Company company);
+        Task<bool> UpdateCompanyAsync(Guid id, Company company);
 
-        bool Delete(Guid id);
+        Task<bool> DeleteAsync(Guid id);
     }
 }

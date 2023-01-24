@@ -8,6 +8,7 @@ using Project2.Service;
 using Project2.Model;
 using Project2.WebAPI.Models;
 using Project2.Service.Common;
+using System.Threading.Tasks;
 
 namespace Project2.WebApi.Controllers
 {
@@ -22,9 +23,9 @@ namespace Project2.WebApi.Controllers
 
         [HttpGet]
         [Route("api/Company/All")]
-        public HttpResponseMessage GetAllItems()
+        public async Task<HttpResponseMessage> GetAllItems()
         {
-            List<Company> companies = companyService.GetAllCompanies();
+            List<Company> companies = await companyService.GetAllCompaniesAsync();
             List<CompanyRest> restCompanies = new List<CompanyRest>();
             foreach(Company company in companies)
             {
@@ -42,9 +43,9 @@ namespace Project2.WebApi.Controllers
 
         [HttpGet]
         [Route("api/Company/name")]
-        public HttpResponseMessage FindName([FromBody] string name)
+        public async Task<HttpResponseMessage> FindName([FromBody] string name)
         {
-            List<Company> companies = companyService.FindByName(name);
+            List<Company> companies = await companyService.FindByNameAsync(name);
             List<CompanyRest> restCompanies = new List<CompanyRest>();
             foreach (Company company in companies)
             {
@@ -62,9 +63,9 @@ namespace Project2.WebApi.Controllers
 
         [HttpGet]
         [Route("api/Company")]
-        public HttpResponseMessage FindById(Guid id)
+        public async Task<HttpResponseMessage> FindById(Guid id)
         {
-            Company company = companyService.FindById(id);
+            Company company = await companyService.FindByIdAsync(id);
             CompanyRest restCompany = new CompanyRest(company);
             if (restCompany is null)
             {
@@ -78,19 +79,19 @@ namespace Project2.WebApi.Controllers
 
         [HttpPost]
         [Route("api/Company")]
-        public HttpResponseMessage AddNewCompany(CompanyRest restCompany)
+        public async Task<HttpResponseMessage> AddNewCompany(CompanyRest restCompany)
         {
             Company company = new Company(restCompany.Name, restCompany.Email);
-            companyService.AddNewCompany(company);
+            await companyService.AddNewCompanyAsync(company);
             return Request.CreateResponse(HttpStatusCode.OK, "Company added");
         }
 
         [HttpPut]
         [Route("api/Company/change")]
-        public HttpResponseMessage UpdateCompany(Guid id, CompanyRest restCompany)
+        public async Task<HttpResponseMessage> UpdateCompany(Guid id, CompanyRest restCompany)
         {
             Company company = new Company(restCompany.Name, restCompany.Email);
-            if (companyService.UpdateCompany(id,company))
+            if (await companyService.UpdateCompanyAsync(id,company))
             {
                 return Request.CreateResponse(HttpStatusCode.OK, "Company successfully changed");
             }
@@ -99,9 +100,9 @@ namespace Project2.WebApi.Controllers
 
         [HttpDelete]
         [Route("api/Company/delete")]
-        public HttpResponseMessage Delete(Guid id)
+        public async Task<HttpResponseMessage> Delete(Guid id)
         {
-            if (companyService.Delete(id))
+            if (await companyService.DeleteAsync(id))
             {
                 return Request.CreateResponse(HttpStatusCode.OK, "Item deleted");
             }

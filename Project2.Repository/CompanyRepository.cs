@@ -12,112 +12,112 @@ namespace Project2.Repository
     public class CompanyRepository:ICompanyRepository
     {
         string connectionString = "Data Source=DESKTOP-U9ANVTR;Initial Catalog=test;Integrated Security=True";
-        public List<Company> GetAllCompanies()
+        public async Task<List<Company>> GetAllCompaniesAsync()
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 List<Company> companies = new List<Company>();
                 SqlCommand selectCompany = new SqlCommand("SELECT * FROM Company Order by name Asc;", connection);
-                connection.Open();
+                await connection.OpenAsync();
 
-                SqlDataReader reader = selectCompany.ExecuteReader();
+                SqlDataReader readerAsync = await selectCompany.ExecuteReaderAsync();
 
-                if (reader.HasRows)
+                if (readerAsync.HasRows)
                 {
-                    while (reader.Read())
+                    while (await readerAsync.ReadAsync())
                     {
                         Company company = new Company();
-                        company.SetCompany((Guid)reader[0], (string)reader[1], (string)reader[2]);
+                        company.SetCompany((Guid)readerAsync[0], (string)readerAsync[1], (string)readerAsync[2]);
                         companies.Add(company);
                     }
                 }
-                reader.Close();
+                readerAsync.Close();
                 return companies;
             }
         }
 
-        public List<Company> FindByName(string name)
+        public async Task<List<Company>> FindByNameAsync(string name)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 List<Company> companies = new List<Company>();
                 SqlCommand selectCompany = new SqlCommand($"SELECT * FROM Company Where Name = '{name}';", connection);
-                connection.Open();
-                SqlDataReader reader = selectCompany.ExecuteReader();
+                await connection.OpenAsync();
+                SqlDataReader readerAsync = await selectCompany.ExecuteReaderAsync();
 
-                if (reader.HasRows)
+                if (readerAsync.HasRows)
                 {
-                    reader.Read();
+                    await readerAsync.ReadAsync();
                     Company company = new Company();
-                    company.SetCompany((Guid)reader[0], (string)reader[1], (string)reader[2]);
+                    company.SetCompany((Guid)readerAsync[0], (string)readerAsync[1], (string)readerAsync[2]);
                     companies.Add(company);
                 }
-                reader.Close();
+                readerAsync.Close();
                 return companies;
             }
         }
 
-        public Company FindById(Guid id)
+        public async Task<Company> FindByIdAsync(Guid id)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 Company company = new Company();
                 SqlCommand selectCompany = new SqlCommand($"SELECT * FROM Company Where Id = '{id}';", connection);
-                connection.Open();
-                SqlDataReader reader = selectCompany.ExecuteReader();
+                await connection.OpenAsync();
+                SqlDataReader readerAsync = await selectCompany.ExecuteReaderAsync();
 
-                if (reader.HasRows)
+                if (readerAsync.HasRows)
                 {
-                    reader.Read();
-                    company.SetCompany((Guid)reader[0], (string)reader[1], (string)reader[2]);
+                    await readerAsync.ReadAsync();
+                    company.SetCompany((Guid)readerAsync[0], (string)readerAsync[1], (string)readerAsync[2]);
                 }
-                reader.Close();
+                readerAsync.Close();
                 return company;
             }
         }
-        public void AddNewCompany(Company company)
+        public async Task AddNewCompanyAsync(Company company)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                connection.Open();
-                SqlCommand insertCompany = new SqlCommand($"Insert Into Company Values('{company.Id}','{company.Name}','{company.Email}');", connection);
-                insertCompany.ExecuteReader();
+                await connection.OpenAsync();
+                SqlCommand insertCompanyAsync = new SqlCommand($"Insert Into Company Values('{company.Id}','{company.Name}','{company.Email}');", connection);
+                await insertCompanyAsync.ExecuteReaderAsync();
             }
         }
 
-        public bool UpdateCompany(Guid id, Company company)
+        public async Task<bool> UpdateCompanyAsync(Guid id, Company company)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 SqlCommand findCompany = new SqlCommand($"Select * From Company where Id = '{id}';", connection);
-                connection.Open();
-                SqlDataReader reader = findCompany.ExecuteReader();
-                if (!reader.HasRows)
+                await connection.OpenAsync();
+                SqlDataReader readerAsync = await findCompany.ExecuteReaderAsync();
+                if (!readerAsync.HasRows)
                 {
                     return false;
                 }
-                reader.Close();
+                readerAsync.Close();
                 SqlCommand updateCompany = new SqlCommand($"Update Company set name = '{company.Name}', email = '{company.Email}' where id = '{id}';", connection);
-                updateCompany.ExecuteReader();
+                await updateCompany.ExecuteReaderAsync();
                 return true;
             }
         }
 
-        public bool Delete(Guid id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 SqlCommand findCompany = new SqlCommand($"Select * From Company where Id = '{id}';", connection);
-                connection.Open();
-                SqlDataReader reader = findCompany.ExecuteReader();
-                if (reader.HasRows)
+                await connection.OpenAsync();
+                SqlDataReader readerAsync = await findCompany.ExecuteReaderAsync();
+                if (readerAsync.HasRows)
                 {
-                    reader.Close();
+                    readerAsync.Close();
                     SqlCommand deleteCompany = new SqlCommand($"Delete From Company where Id = '{id}';", connection);
-                    deleteCompany.ExecuteReader();
+                    await deleteCompany.ExecuteReaderAsync();
                     return true;
                 }
-                reader.Close();
+                readerAsync.Close();
                 return false;
             }
         }
