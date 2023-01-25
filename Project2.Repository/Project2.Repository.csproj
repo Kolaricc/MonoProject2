@@ -84,6 +84,10 @@
       <Project>{b515ac9e-b8e7-4dc0-91c5-4a61b30f960e}</Project>
       <Name>Project2.Repository.Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Project2.Solution.Common\Project2.Solution.Common.csproj">
+      <Project>{99B144B5-8AA0-4BF8-ABE6-A03DC1FF1B7A}</Project>
+      <Name>Project2.Solution.Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

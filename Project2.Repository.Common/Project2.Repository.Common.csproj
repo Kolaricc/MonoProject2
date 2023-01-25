@@ -50,6 +50,10 @@
       <Project>{eec41e39-0c85-4fb4-8f1e-ffaf6b720cf2}</Project>
       <Name>Project2.Model</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Project2.Solution.Common\Project2.Solution.Common.csproj">
+      <Project>{99B144B5-8AA0-4BF8-ABE6-A03DC1FF1B7A}</Project>
+      <Name>Project2.Solution.Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -4,12 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Project2.Model;
+using Project2.Solution.Common;
 
 namespace Project2.Repository.Common
 {
     public interface IItemRepository
     {
-        Task<List<Item>> GetAllItemsAsync();
+        Task<List<Item>> GetItemsAsync(Paging paging, Sorting sorting, Filtering filtering);
 
         Task<Item> FindByIdAsync(Guid id);
 

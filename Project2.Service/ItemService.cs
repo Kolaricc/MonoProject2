@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Project2.Repository;
 using Project2.Service.Common;
 using Project2.Repository.Common;
+using Project2.Solution.Common;
 
 namespace Project2.Service
 {
@@ -19,9 +20,9 @@ namespace Project2.Service
             this.itemRepository = itemRepository;
         }
 
-        public async Task<List<Item>> GetAllItemsAsync()
+        public async Task<List<Item>> GetItemsAsync(Paging paging, Sorting sorting, Filtering filtering)
         {
-            return await itemRepository.GetAllItemsAsync();
+            return await itemRepository.GetItemsAsync(paging, sorting, filtering);
         }
 
         public async Task<List<Item>> FindByNameAsync(string name)

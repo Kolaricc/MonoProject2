@@ -10,6 +10,7 @@ using Project2.Model;
 using Project2.WebAPI.Models;
 using System.Threading.Tasks;
 using Project2.Service.Common;
+using Project2.Solution.Common;
 
 namespace Project2.WebApi.Controllers
 {
@@ -26,9 +27,19 @@ namespace Project2.WebApi.Controllers
 
         [HttpGet]
         [Route("api/Items/All")]
-        public async Task<HttpResponseMessage> GetAllItemsAsync()
+        public async Task<HttpResponseMessage> GetItemsAsync(ushort pageNumber, ushort pageSize, string orderBy, string orderDirection, Filtering filtering)
         {
-            List<Item> items = await ItemService.GetAllItemsAsync();
+            if (pageSize == 0)
+            {
+                return Request.CreateResponse(HttpStatusCode.NotFound, "Page Size cannot be 0!");
+            }
+            if (pageNumber == 0)
+            {
+                return Request.CreateResponse(HttpStatusCode.NotFound, "Page Number cannot be 0!");
+            }
+            Paging paging = new Paging(pageSize, pageNumber);
+            Sorting sorting = new Sorting(orderBy, orderDirection);
+            List<Item> items = await ItemService.GetItemsAsync(paging, sorting, filtering);
             List<ItemRest> restItems = new List<ItemRest>();
             foreach(Item item in items)
             {
@@ -43,9 +54,19 @@ namespace Project2.WebApi.Controllers
 
         [HttpGet]
         [Route("api/Items/All/Clean")]
-        public async Task<HttpResponseMessage> GetAllItemsCleanAsync()
+        public async Task<HttpResponseMessage> GetItemsCleanAsync(ushort pageNumber, ushort pageSize, string orderBy, string orderDirection, Filtering filtering)
         {
-            List<Item> items = await ItemService.GetAllItemsAsync();
+            if (pageSize == 0)
+            {
+                return Request.CreateResponse(HttpStatusCode.NotFound, "Page Size cannot be 0!");
+            }
+            if (pageNumber == 0)
+            {
+                return Request.CreateResponse(HttpStatusCode.NotFound, "Page Number cannot be 0!");
+            }
+            Paging paging = new Paging(pageSize, pageNumber);
+            Sorting sorting = new Sorting(orderBy, orderDirection);
+            List<Item> items = await ItemService.GetItemsAsync(paging, sorting, filtering);
             List<Company> companies = await CompanyService.GetAllCompaniesAsync();
             List<CleanItem> cleanItems = new List<CleanItem>();
             foreach(Item item in items)

@@ -6,18 +6,31 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Project2.Repository.Common;
+using Project2.Solution.Common;
 
 namespace Project2.Repository
 {
     public class ItemRepository : IItemRepository
     {
         string connectionString = "Data Source=DESKTOP-U9ANVTR;Initial Catalog=test;Integrated Security=True";
-        public async Task<List<Item>> GetAllItemsAsync()
+        public async Task<List<Item>> GetItemsAsync(Paging paging, Sorting sorting, Filtering filtering)
         {
             using (SqlConnection connectionAsync = new SqlConnection(connectionString))
             {
                 List<Item> items = new List<Item>();
-                SqlCommand selectItems = new SqlCommand("SELECT * FROM Item;", connectionAsync);
+                StringBuilder command = new StringBuilder("SELECT * FROM Item ");
+                command.Append(filtering.ToSQLFilter());
+                command.Append(" Order by ");
+                command.Append(sorting.OrderBy);
+                command.Append(" ");
+                command.Append(sorting.OrderDirection);
+                command.Append(" Offset ");
+                command.Append(paging.GetOffset());
+                command.Append(" rows fetch next ");
+                command.Append(paging.PageSize);
+                command.Append(" rows only");
+            
+                SqlCommand selectItems = new SqlCommand(command.ToString(), connectionAsync);
                 await connectionAsync.OpenAsync();
 
                 SqlDataReader readerAsync = await selectItems.ExecuteReaderAsync();
